@@ -1,0 +1,11 @@
+"""
+Program to start the application
+
+"""
+
+from RFIDSender import Control
+
+if __name__ == "__main__":
+    Control.Start()
+    
+
