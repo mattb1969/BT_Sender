@@ -1,4 +1,4 @@
-
+#! /usr/bin/env python3
 """
 Bostin Technology  (see www.BostinTechnology.com)
 
@@ -7,8 +7,8 @@ Use the Androidn Application to read values
 
 """
 
-from DataAccessor import *
-from RFIDRoutines import *
+from RFIDSender import DataAccessor
+from RFIDSender import RFIDRoutines
 from datetime import datetime
 import time
 
@@ -44,17 +44,16 @@ def GenerateTimeStamp():
     return now[:23]
     
 
-dbconn = DynamodbConnection()
+def Start():
+    dbconn = DataAccessor.DynamodbConnection()
 
-serconn = RFIDSetup()
+    serconn = RFIDRoutines.RFIDSetup()
 
-#while True:
+    # Read the tag
+    tag_num = RFIDRoutines.ReadTagPageZero(serconn)
     
-# Read the tag
-tag_num = ReadTagPageZero(serconn)
-    
-if tag_num[0]:
-    WriteValues(dbconn, tag_num[1], GenerateTimeStamp(), GetSerialNumber(), "0001", sensor_acroynm, sensor_description)
+    if tag_num[0]:
+        WriteValues(dbconn, tag_num[1], GenerateTimeStamp(), GetSerialNumber(), "0001", sensor_acroynm, sensor_description)
 
 
 
