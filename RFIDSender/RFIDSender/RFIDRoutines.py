@@ -16,31 +16,38 @@ GPIO_PIN = 0 # Jumper 2, also known as GPIO17
 
 def WaitForCTS():
     # continually monitor the selected GPIO pin and wait for the line to go low
-    print ("Waiting for CTS") # Added for debug purposes
+    # print ("Waiting for CTS") # Added for debug purposes
     while wiringpi2.digitalRead(GPIO_PIN):
         # do nothing
-        time.sleep(0.1)   # was 0.001
+        time.sleep(0.01)   # was 0.001
     return
 
 def ReadText(fd):
     # read the data back from the serial line and return it as a string to the calling function
     qtydata = wiringpi2.serialDataAvail(fd)
-    print ("Amount of data: %d bytes" % qtydata) # Added for debug purposes
+    # print ("Amount of data: %d bytes" % qtydata) # Added for debug purposes
     response = ""
     while qtydata > 0:
         # while there is data to be read, read it back
-        print ("Reading data back %d" % qtydata) #Added for Debug purposes
-        response = response + chr(wiringpi2.serialGetchar(fd))
-        qtydata = qtydata - 1   
+
+        # The char returned can be a 0x0, so by adding "00" to the end allows the extra zero to be filled
+        reply = hex(wiringpi2.serialGetchar(fd)) + "00"
+        
+        #print ("Reading data back byte/text: %d/%s" % (qtydata,reply)) #Added for Debug purposes
+        
+        # Add the 2 characters in the reply starting after 0x...
+        response = response + reply[2:4]
+        qtydata = qtydata - 1
+  
     return response
     
 def ReadInt(fd):
     # read a single character back from the serial line
     qtydata = wiringpi2.serialDataAvail(fd)
-    print ("Amount of data: %s bytes" % qtydata)  # Added for debug purposes
+    # print ("Amount of data: %s bytes" % qtydata)  # Added for debug purposes
     response = 0
     if qtydata > 0:
-        print ("Reading data back %d" % qtydata) #Added for Debug purposes
+        # print ("Reading data back value: %d" % qtydata) #Added for Debug purposes
         response = wiringpi2.serialGetchar(fd)
     return response
 
@@ -65,32 +72,18 @@ def RFIDSetup():
         
     return fd
     
-def ReadTagStatus(fd):
-    # read the RFID reader until a tag is present
-    notag = True
-    while notag:
-        WaitForCTS()
-        print ("Sending Tag Status Command") #Added for Debug purposes
-        wiringpi2.serialPuts(fd,"S")
-        time.sleep(0.1)
-        ans = ReadInt(fd)
-        print ("Tag Status: %s" % hex(ans)) # Added for Debug purposes
-        if ans == int("0xD6", 16):
-            # D6 is a positive response meaning tag present and read
-            notag = False
-    return
-
 def ReadTagPageZero(fd):
     # read the tag page 00 command and return the value from the tag
     tag = False
     while not(tag):
+        wiringpi2.serialFlush(fd)
         WaitForCTS()
-        print ("Sending Tag Read Page Command") #Added for Debug purposes
+        # print ("Sending Tag Read Page Command") #Added for Debug purposes
         wiringpi2.serialPutchar(fd, 0x52)
         wiringpi2.serialPutchar(fd, 0x00)
-        time.sleep(0.1)
+        time.sleep(0.1)	# was 0.1
         ans = ReadInt(fd)
-        print ("Tag Status: %s" % hex(ans)) #Added for Debug purposes
+        # print ("Read Tag Page Zero Status: %s" % hex(ans)) #Added for Debug purposes
         if ans == int("0xD6", 16):
             # Tag present and read
             tag = True

@@ -54,7 +54,7 @@ def WriteValues(db, tag, tstamp, device, sensor, acroynm, desc):
                 'Viewed': { 'BOOL' : False},
                 },
             )
-        print("Create Item Response %s" % ans) #Debug
+        # print("Create Item Response %s" % ans) #Debug
     except:
         print ("Unable to write data to AWS")
 

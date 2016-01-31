@@ -3,7 +3,7 @@
 Bostin Technology  (see www.BostinTechnology.com)
 
 For use with the RFIDReader module
-Use the Androidn Application to read values
+Use the Android Application to read values
 
 """
 
@@ -35,7 +35,7 @@ def GetSerialNumber():
 
 def GenerateTimeStamp():
     """
-    Generate a timestamop in the correct format
+    Generate a timestamp in the correct format
     dd-mm-yyyy hh:mm:ss.sss
     datetime returns a object so it needs to be converted to a string and then redeuced to 23 characters to meet format
     """
@@ -45,16 +45,24 @@ def GenerateTimeStamp():
     
 
 def Start():
+    device_id = GetSerialNumber()
+    print("Bostin Technology\nRFID Reader")
+    print("\nDevice ID: %s" % device_id)
+    print("\nTo Exit, CTRL-c\n\n")
     dbconn = DataAccessor.DynamodbConnection()
 
     serconn = RFIDRoutines.RFIDSetup()
 
-    # Read the tag
-    tag_num = RFIDRoutines.ReadTagPageZero(serconn)
-    
-    if tag_num[0]:
-        WriteValues(dbconn, tag_num[1], GenerateTimeStamp(), GetSerialNumber(), "0001", sensor_acroynm, sensor_description)
+    while True:
+        # Read the tag
+        tag_num = RFIDRoutines.ReadTagPageZero(serconn)
+        
+        if tag_num[0]:
+            DataAccessor.WriteValues(dbconn, tag_num[1], GenerateTimeStamp(), device_id, "0001", sensor_acroynm, sensor_description)
 
+# Only call the Start routine is the module is being called directly.
+if __name__ == "__main__":
+    Start()
 
 
 
