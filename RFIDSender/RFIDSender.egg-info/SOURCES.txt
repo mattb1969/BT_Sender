@@ -1,0 +1,12 @@
+CognIoTRFID125kHz
+setup.cfg
+setup.py
+RFIDSender/Control.py
+RFIDSender/DataAccessor.py
+RFIDSender/RFIDRoutines.py
+RFIDSender/__init__.py
+RFIDSender.egg-info/PKG-INFO
+RFIDSender.egg-info/SOURCES.txt
+RFIDSender.egg-info/dependency_links.txt
+RFIDSender.egg-info/requires.txt
+RFIDSender.egg-info/top_level.txt
